@@ -1,0 +1,15 @@
+vendor/
+node_modules/
+.env
+.env.local
+.git
+.gitignore
+.vscode
+.idea
+*.log
+data/log/
+data/cache/
+data/temp/
+nbproject/
+.DS_Store
+Thumbs.db

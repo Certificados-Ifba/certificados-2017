@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: certificados-app
+    ports:
+      - "8000:80"
+    environment:
+      - DB_HOST=db
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - DB_NAME=${DB_NAME:-certificados}
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html
+      - ./data/log:/var/www/html/data/log
+      - ./data/cache:/var/www/html/data/cache
+    networks:
+      - certificados-network
+
+  db:
+    image: mysql:8.0
+    container_name: certificados-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-certificados}
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - certificados-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: certificados-phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USER:-root}
+      PMA_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    networks:
+      - certificados-network
+
+volumes:
+  db-data:
+
+networks:
+  certificados-network:
+    driver: bridge

@@ -10,6 +10,9 @@ INSTALL.txt
 LICENSE.txt
 README.md
 
+# Environment variables
+.env
+
 # Composer #
 ############
 composer.lock

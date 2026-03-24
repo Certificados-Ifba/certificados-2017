@@ -25,9 +25,28 @@ class ValidarCertificado extends FormAbstract
         $this->add($chave);
 
         $captcha = new Element\Captcha('captcha');
+
+        $appEnv = getenv('APP_ENV') ?: 'production';
+        $isDevelopment = in_array(strtolower($appEnv), array('dev', 'development', 'local'), true);
+
+        // Chaves de teste oficiais do Google (válidas para localhost/desenvolvimento)
+        $defaultSiteKey = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+        $defaultSecretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+
+        $siteKey = getenv('RECAPTCHA_SITE_KEY') ?: $defaultSiteKey;
+        $secretKey = getenv('RECAPTCHA_SECRET_KEY') ?: $defaultSecretKey;
+
+        if (! $isDevelopment && ! getenv('RECAPTCHA_SITE_KEY')) {
+            // Mantém compatibilidade com produção legada quando variável não existir
+            $siteKey = '6LfFeUYUAAAAAIDyKbMbhGxNGdvzw74Aa375qR7S';
+        }
+        if (! $isDevelopment && ! getenv('RECAPTCHA_SECRET_KEY')) {
+            $secretKey = '6LfFeUYUAAAAAJKojud7UOaVuF2MK8ywV7DnH8gK';
+        }
+
         $captcha->setCaptcha(new \Zend\Captcha\ReCaptcha(array(
-            'secret_key' => '6LfFeUYUAAAAAJKojud7UOaVuF2MK8ywV7DnH8gK',
-            'site_key' => '6LfFeUYUAAAAAIDyKbMbhGxNGdvzw74Aa375qR7S',
+            'secret_key' => $secretKey,
+            'site_key' => $siteKey,
         )));
         $this->add($captcha);
         

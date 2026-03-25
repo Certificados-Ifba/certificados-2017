@@ -1,0 +1,6 @@
+.git
+.gitignore
+.idea
+nbproject
+data/log
+.env

@@ -1,31 +1,50 @@
 Certificados
 =======================
 
-Instrodução
+Introducao
 ------------
-Aplicação de gerenciamento de certificados
+Aplicacao de gerenciamento de certificados.
 
-
-Instalação 
+Rodando com Docker
 ---------------------------
 
-Para rodar o projeto:
+### 1) Subir ambiente local (app + mysql)
 
-1. Instalar as dependências: 
+```bash
+docker compose up --build -d
+```
 
+Aplicacao: `http://localhost:8080`
 
-`cd path/to/install`
+### 2) Variaveis de ambiente
 
-`composer update`
-    
- 2. Criar banco de dados com os arquivos da pasta bd/sql
- 
- 3. Alterar dados de usuário do banco no arquivo config/doctrine.local.php
+As variaveis de banco sao lidas do arquivo `.env` (ou variaveis do ambiente no Coolify):
 
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
 
-Requerimentos
+O arquivo `config/autoload/doctrine.global.php` ja esta preparado para usar essas variaveis.
+
+### 3) Importar estrutura inicial do banco
+
+Importe os scripts SQL da pasta `bd/sql` no banco configurado.
+
+Deploy no Coolify
 ---------------------------
 
-PHP 5.3.23 or later; we recommend using the latest PHP version whenever possible
+Use uma aplicacao do tipo Dockerfile:
 
+1. Aponte para este repositório.
+2. Build Pack: `Dockerfile`.
+3. Porta exposta da aplicacao: `80`.
+4. Configure variaveis de ambiente de banco (`DB_*`).
+5. Se usar banco gerenciado pelo Coolify, use hostname/porta fornecidos por ele.
 
+Requisitos
+---------------------------
+
+- Docker 24+
+- Docker Compose v2

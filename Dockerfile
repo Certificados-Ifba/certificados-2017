@@ -1,17 +1,19 @@
 FROM php:7.4-apache
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get -o Acquire::Retries=3 update && apt-get install -y --no-install-recommends \
     git \
     unzip \
     libzip-dev \
     libicu-dev \
-   libonig-dev \
+    libonig-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libxml2-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install -j"$(nproc)" \
+ && docker-php-ext-install -j1 \
     pdo_mysql \
     mbstring \
     intl \

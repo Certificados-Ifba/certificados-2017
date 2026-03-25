@@ -17,7 +17,7 @@ class ConfigurarModeloCertificado extends AbstractService
         $this->errorCodeValidator = [
             1451 => 'Para excluir esse evento você deverá excluir todas as participações e atividades a ele vinculado'
         ];
-        $this->path_folder_modelo_certificado_frente = realpath(dirname(__FILE__). '/../../../../../public_html/assets/certificados/frente/'). DIRECTORY_SEPARATOR;
+        $this->path_folder_modelo_certificado_frente = rtrim(dirname(__FILE__) . '/../../../../../public_html/assets/certificados/frente', DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
 
     public function insert($data)

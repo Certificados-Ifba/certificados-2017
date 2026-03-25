@@ -19,8 +19,8 @@ class ModeloCertificado extends AbstractService
         $this->errorCodeValidator = [
             1451 => 'Esse modelo está sendo utilizado em um evento e por isso não pode ser excluido'
         ];
-        $this->path_folder_modelo_certificado_frente = realpath(dirname(__FILE__). '/../../../../../public_html/assets/certificados/frente/'). DIRECTORY_SEPARATOR;
-        $this->path_folder_modelo_certificado_verso = realpath(dirname(__FILE__). '/../../../../../public_html/assets/certificados/verso/'). DIRECTORY_SEPARATOR;
+        $this->path_folder_modelo_certificado_frente = $this->resolveStoragePath('/../../../../../public_html/assets/certificados/frente');
+        $this->path_folder_modelo_certificado_verso = $this->resolveStoragePath('/../../../../../public_html/assets/certificados/verso');
     }
 
     public function insert($data)
@@ -58,12 +58,35 @@ class ModeloCertificado extends AbstractService
     }
 
     public function enviarArquivo($full_path, $array_file){
+        $dir = dirname($full_path);
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true)) {
+            throw new \RuntimeException("Nao foi possivel criar diretorio de upload: {$dir}");
+        }
+
         $filter = new Rename(array(
             "target" => $full_path,
             "overwrite" => true
         ));
 
-        $filter->filter($array_file);
+        try {
+            $filter->filter($array_file);
+            return;
+        } catch (\Exception $e) {
+            $tmp = isset($array_file['tmp_name']) ? $array_file['tmp_name'] : null;
+            if (!is_string($tmp) || $tmp === '' || !file_exists($tmp)) {
+                throw $e;
+            }
+
+            // Fallback para ambientes em que rename entre fs/volumes falha.
+            if (@move_uploaded_file($tmp, $full_path) || @rename($tmp, $full_path) || @copy($tmp, $full_path)) {
+                if (file_exists($tmp) && realpath($tmp) !== realpath($full_path)) {
+                    @unlink($tmp);
+                }
+                return;
+            }
+
+            throw $e;
+        }
     }
 
 
@@ -125,6 +148,13 @@ class ModeloCertificado extends AbstractService
         }
 
         return $result;
+    }
+
+    private function resolveStoragePath($suffix)
+    {
+        $basePath = dirname(__FILE__) . $suffix;
+        $normalized = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        return $normalized;
     }
 
 }

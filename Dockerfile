@@ -2,7 +2,8 @@ FROM php:7.4-apache
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -o Acquire::Retries=3 update && apt-get install -y --no-install-recommends \
+# Instala dependências do sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
     libzip-dev \
@@ -13,7 +14,7 @@ RUN apt-get -o Acquire::Retries=3 update && apt-get install -y --no-install-reco
     libfreetype6-dev \
     libxml2-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install -j1 \
+ && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
     mbstring \
     intl \
@@ -24,6 +25,7 @@ RUN apt-get -o Acquire::Retries=3 update && apt-get install -y --no-install-reco
  && a2enmod rewrite headers expires \
  && rm -rf /var/lib/apt/lists/*
 
+# Define DocumentRoot
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public_html
 
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
@@ -31,29 +33,39 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
 
+# Configuração do Apache
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Composer (multi-stage)
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar apenas o necessário para executar a aplicação
-COPY index.php /var/www/html/index.php
-COPY init_autoloader.php /var/www/html/init_autoloader.php
-COPY composer.json /var/www/html/composer.json
-COPY composer.lock /var/www/html/composer.lock
-COPY config /var/www/html/config
-COPY module /var/www/html/module
-COPY vendor /var/www/html/vendor
-COPY public_html /var/www/html/public_html
-COPY data /var/www/html/data
+# Copia apenas arquivos necessários (melhor cache de build)
+COPY composer.json composer.lock* ./
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
+    --no-interaction \
+    --prefer-dist \
+    --no-dev \
+    --optimize-autoloader || true
 
+# Copia o restante da aplicação
+COPY . .
+
+# Criação de diretórios necessários
 RUN mkdir -p \
     data/log \
     data/temp \
     data/cache \
     public_html/assets/certificados/frente \
     public_html/assets/certificados/verso \
- && chown -R www-data:www-data /var/www/html/data /var/www/html/public_html/assets/certificados
+ && chown -R www-data:www-data /var/www/html/data /var/www/html/public_html/assets
+
+# Segurança básica (evita execução de PHP em uploads)
+RUN echo "<Directory /var/www/html/data>\n\
+    php_admin_flag engine off\n\
+</Directory>" > /etc/apache2/conf-available/security.conf \
+ && a2enconf security
 
 EXPOSE 80
 

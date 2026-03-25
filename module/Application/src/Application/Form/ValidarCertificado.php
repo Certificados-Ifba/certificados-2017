@@ -24,10 +24,13 @@ class ValidarCertificado extends FormAbstract
         ));
         $this->add($chave);
 
+        $recaptchaSiteKey = getenv('RECAPTCHA_SITE_KEY') ?: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+        $recaptchaSecretKey = getenv('RECAPTCHA_SECRET_KEY') ?: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+
         $captcha = new Element\Captcha('captcha');
         $captcha->setCaptcha(new \Zend\Captcha\ReCaptcha(array(
-            'secret_key' => '6LfFeUYUAAAAAJKojud7UOaVuF2MK8ywV7DnH8gK',
-            'site_key' => '6LfFeUYUAAAAAIDyKbMbhGxNGdvzw74Aa375qR7S',
+            'secret_key' => $recaptchaSecretKey,
+            'site_key' => $recaptchaSiteKey,
         )));
         $this->add($captcha);
         

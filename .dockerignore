@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.idea
+nbproject
+
+Dockerfile*
+docker-compose*.yml
+Vagrantfile
+*.bat
+
+README.md
+
+# Cache e artefatos temporários
+data/cache/*
+data/log/*
+data/temp/*

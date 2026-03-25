@@ -55,4 +55,10 @@ RUN sed -ri -e 's!/var/www/html!/var/www/html/public_html!g' /etc/apache2/sites-
 
 RUN mkdir -p /var/www/html/data/log && chown -R www-data:www-data /var/www/html/data
 
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint-app.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint-app.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-app.sh"]
+CMD ["apache2-foreground"]
+
 EXPOSE 80

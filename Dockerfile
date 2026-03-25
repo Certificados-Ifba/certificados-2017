@@ -42,7 +42,16 @@ RUN sed -ri -e 's!/var/www/html!/var/www/html/public_html!g' /etc/apache2/sites-
       echo '    Require all granted'; \
       echo '</Directory>'; \
     } > /etc/apache2/conf-available/app.conf \
-    && a2enconf app
+    && a2enconf app \
+    && { \
+      echo 'ServerName localhost'; \
+    } > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername \
+    && { \
+      echo 'display_errors=Off'; \
+      echo 'log_errors=On'; \
+      echo 'error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_STRICT & ~E_WARNING'; \
+    } > /usr/local/etc/php/conf.d/99-app.ini
 
 RUN mkdir -p /var/www/html/data/log && chown -R www-data:www-data /var/www/html/data
 

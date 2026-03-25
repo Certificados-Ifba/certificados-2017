@@ -4,7 +4,7 @@
  * to the application root now.
  */
 define('REQUEST_MICROTIME', microtime(true));
-ini_set("error_reporting", E_ALL & ~ E_DEPRECATED & ~ E_USER_DEPRECATED & ~ E_STRICT);
+ini_set("error_reporting", E_ALL & ~ E_DEPRECATED & ~ E_USER_DEPRECATED & ~ E_STRICT & ~ E_WARNING);
 ini_set('max_execution_time', 300);
 chdir(dirname(__DIR__));
 

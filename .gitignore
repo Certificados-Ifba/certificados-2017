@@ -12,6 +12,5 @@ README.md
 
 # Composer #
 ############
-composer.lock
 composer.phar
 vendor

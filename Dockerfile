@@ -25,15 +25,14 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock /var/www/html/
-
-RUN composer install \
-    --no-dev \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader
-
 COPY . /var/www/html
+
+RUN if [ -f composer.lock ]; then \
+      composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader; \
+    else \
+      composer config audit.block-insecure false; \
+      composer update --no-dev --no-interaction --prefer-dist --optimize-autoloader; \
+    fi
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public_html!g' /etc/apache2/sites-available/000-default.conf \
     && sed -ri -e 's!/var/www/!/var/www/html/public_html!g' /etc/apache2/apache2.conf \

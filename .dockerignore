@@ -1,5 +1,6 @@
 .git
 .gitignore
+.github
 .vscode
 .idea
 nbproject
@@ -9,7 +10,16 @@ docker-compose*.yml
 Vagrantfile
 *.bat
 
+# Arquivos locais/sensíveis
+.env
+.bashrc
+.bash_logout
+.profile
+
 README.md
+deployment.properties
+deployment.xml
+filename.pdf
 
 # Cache e artefatos temporários
 data/cache/*

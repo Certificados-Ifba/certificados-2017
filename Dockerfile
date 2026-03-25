@@ -35,7 +35,17 @@ COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.con
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www/html
-COPY . /var/www/html
+
+# Copiar apenas o necessário para executar a aplicação
+COPY index.php /var/www/html/index.php
+COPY init_autoloader.php /var/www/html/init_autoloader.php
+COPY composer.json /var/www/html/composer.json
+COPY composer.lock /var/www/html/composer.lock
+COPY config /var/www/html/config
+COPY module /var/www/html/module
+COPY vendor /var/www/html/vendor
+COPY public_html /var/www/html/public_html
+COPY data /var/www/html/data
 
 RUN mkdir -p \
     data/log \

@@ -199,10 +199,15 @@ class ParticipacaoController extends ActionController
         $layout->setTemplate("application/certificado/download");
 
 
-        $image = 'http://'.$_SERVER['SERVER_NAME'].'/assets/certificados/frente/' . $modelo_array['bg_frente'];
-        $type = pathinfo($image, PATHINFO_EXTENSION);
-        $data = file_get_contents($image);
-        $dataUri = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        // Evita dependência de URL remota (SERVER_NAME sem porta) no Dompdf.
+        $imgPath = dirname(__FILE__) . '/../../../../../public_html/assets/certificados/frente/' . $modelo_array['bg_frente'];
+        $imgPath = realpath($imgPath) ?: $imgPath;
+        $mime = is_file($imgPath) ? (mime_content_type($imgPath) ?: ('image/' . pathinfo($imgPath, PATHINFO_EXTENSION))) : null;
+        $dataUri = '';
+        if (is_file($imgPath)) {
+            $data = file_get_contents($imgPath);
+            $dataUri = 'data:' . $mime . ';base64,' . base64_encode($data);
+        }
 
         $layout->setVariable("fundo", $dataUri);
         $layout->setVariable("modelo", $modelo_array);

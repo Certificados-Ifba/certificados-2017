@@ -526,11 +526,16 @@ class Certificado extends AbstractService
         $pdf->setOption('dpi', 200);
         $pdf->setOption('paperOrientation', 'landscape'); // Defaults to "portrait"
 
-        // gera uma uri imagem do fundo do certificado
-        $image = 'http://'.$_SERVER['SERVER_NAME'].'/assets/certificados/frente/' . $modelo_array['bg_frente'];
-        $type = pathinfo($image, PATHINFO_EXTENSION);
-        $data = file_get_contents($image);
-        $dataUri = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        // Gera uma data URI para o fundo do certificado.
+        // Importante: evitar URL remota (SERVER_NAME/porta) no Dompdf; usamos caminho local.
+        $imgPath = dirname(__FILE__) . '/../../../../../public_html/assets/certificados/frente/' . $modelo_array['bg_frente'];
+        $imgPath = realpath($imgPath) ?: $imgPath;
+        $mime = is_file($imgPath) ? (mime_content_type($imgPath) ?: ('image/' . pathinfo($imgPath, PATHINFO_EXTENSION))) : null;
+        $dataUri = '';
+        if (is_file($imgPath)) {
+            $data = file_get_contents($imgPath);
+            $dataUri = 'data:' . $mime . ';base64,' . base64_encode($data);
+        }
 
         $pdf->setVariable('fundo', $dataUri);
         $pdf->setVariable('modelo', $modelo_array);
@@ -562,10 +567,14 @@ class Certificado extends AbstractService
         $layout = new ViewModel();
         $layout->setTemplate("application/certificado/download");
 
-        $image = 'http://'.$_SERVER['SERVER_NAME'].'/assets/certificados/frente/' . $modelo_array['bg_frente'];
-        $type = pathinfo($image, PATHINFO_EXTENSION);
-        $data = file_get_contents($image);
-        $dataUri = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        $imgPath = dirname(__FILE__) . '/../../../../../public_html/assets/certificados/frente/' . $modelo_array['bg_frente'];
+        $imgPath = realpath($imgPath) ?: $imgPath;
+        $mime = is_file($imgPath) ? (mime_content_type($imgPath) ?: ('image/' . pathinfo($imgPath, PATHINFO_EXTENSION))) : null;
+        $dataUri = '';
+        if (is_file($imgPath)) {
+            $data = file_get_contents($imgPath);
+            $dataUri = 'data:' . $mime . ';base64,' . base64_encode($data);
+        }
 
         $layout->setVariable("fundo", $dataUri);
         $layout->setVariable("modelo", $modelo_array);

@@ -22,7 +22,8 @@ body {
 	position: absolute;
 	width: 100%;
 	height: auto;
-	z-index: -1;
+	/* Dompdf pode ignorar z-index negativo; manter fundo visivel */
+	z-index: 0;
 	margin: 0;
 	padding: 0;
 	top: 0;
